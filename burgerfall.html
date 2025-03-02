@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Falling Cheeseburgers</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    /* Full-screen setup with a forest background */
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      overflow: hidden;
+      background: url('https://source.unsplash.com/1600x900/?forest') no-repeat center center fixed;
+      background-size: cover;
+      font-family: Arial, sans-serif;
+    }
+    #gameContainer {
+      position: relative;
+      width: 100%;
+      height: 100%;
+    }
+    /* Cheeseburger image styling */
+    .falling {
+      position: absolute;
+      width: 50px;
+      height: 50px;
+      cursor: pointer;
+    }
+    /* Score display with a contrasting style */
+    #scoreBoard {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      font-size: 24px;
+      color: #fff;
+      z-index: 10;
+      text-shadow: 1px 1px 2px #000;
+    }
+  </style>
+</head>
+<body>
+  <div id="gameContainer">
+    <div id="scoreBoard">Score: 0</div>
+  </div>
+
+  <script>
+    const container = document.getElementById('gameContainer');
+    const scoreBoard = document.getElementById('scoreBoard');
+    let score = 0;
+    const gameDuration = 30000; // Game lasts 30 seconds
+    let spawnTimer, gameTimer;
+    
+    // URL for the cheeseburger image (sized to display roughly 50px by 50px)
+    const burgerURL = "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7c/Cheeseburger.jpg/320px-Cheeseburger.jpg";
+
+    window.addEventListener('load', startGame);
+
+    function startGame() {
+      score = 0;
+      scoreBoard.textContent = 'Score: ' + score;
+      gameTimer = setTimeout(endGame, gameDuration);
+      spawnTimer = setInterval(spawnBurger, 1000);
+    }
+
+    function spawnBurger() {
+      const rect = container.getBoundingClientRect();
+      const maxX = rect.width - 50; // Burger width is 50px
+      const burger = document.createElement('img');
+      burger.src = burgerURL;
+      burger.className = 'falling';
+      burger.style.left = Math.floor(Math.random() * maxX) + 'px';
+      burger.style.top = '0px';
+      container.appendChild(burger);
+
+      let pos = 0;
+      const fallSpeed = 3; // pixels per frame
+      const fallInterval = setInterval(() => {
+        pos += fallSpeed;
+        burger.style.top = pos + 'px';
+        // Remove burger if it reaches the bottom
+        if (pos > rect.height - 50) {
+          clearInterval(fallInterval);
+          burger.remove();
+        }
+      }, 20);
+
+      burger.addEventListener('click', () => {
+        score++;
+        scoreBoard.textContent = 'Score: ' + score;
+        clearInterval(fallInterval);
+        burger.remove();
+      });
+    }
+
+    function endGame() {
+      clearInterval(spawnTimer);
+      document.querySelectorAll('.falling').forEach(burger => burger.remove());
+      alert('Game over! Your score is: ' + score);
+    }
+  </script>
+</body>
+</html>
